@@ -71,7 +71,10 @@ module rbcp_control(
         TEST_IN_SIGNAL_LENGTH,
         DecisionTriggerCatch,
         DecisionTriggerGate_stop2,
-        err_flag_count      
+        err_flag_count,
+        inject_start,
+        inject_strobe_sel,
+        inject_addr      
     );
 
     input				CLK;
@@ -140,7 +143,9 @@ module rbcp_control(
     output              monitor_rst;    
 
     input [15:0]        err_flag_count;
-
+    output               inject_start;
+    output [2:0]         inject_strobe_sel;
+    output [39:0]        inject_addr;
 
 //*******************************************************************
 //                  register read & write 
@@ -240,7 +245,10 @@ module rbcp_control(
         .dac_chip1_ch1(dac_chip1_ch1[7:0]),
         .dac_chip0_start_clk133(dac_chip0_start_clk133[1:0]),
         .dac_chip1_start_clk133(dac_chip1_start_clk133[1:0]),
-        .err_flag_count(err_flag_count[15:0])
+        .err_flag_count(err_flag_count[15:0]),
+        .inject_start(inject_start),
+        .inject_strobe_sel(inject_strobe_sel),
+        .inject_addr(inject_addr)         
     );
     
 	
@@ -292,7 +300,10 @@ module rbcp_control(
         .dac_chip1_ch0(dac_chip1_ch0[7:0]),
         .dac_chip1_ch1(dac_chip1_ch1[7:0]),
         .dac_chip0_start_clk133(dac_chip0_start_clk133[1:0]),
-        .dac_chip1_start_clk133(dac_chip1_start_clk133[1:0])        
+        .dac_chip1_start_clk133(dac_chip1_start_clk133[1:0]),
+        .inject_start(inject_start),
+        .inject_strobe_sel(inject_strobe_sel),
+        .inject_addr(inject_addr)                 
 	);
 
 

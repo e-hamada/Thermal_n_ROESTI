@@ -68,7 +68,10 @@ module rbcp_write(
         dac_chip1_ch0,
         dac_chip1_ch1,
         dac_chip0_start_clk133,
-        dac_chip1_start_clk133
+        dac_chip1_start_clk133,
+        inject_start,
+        inject_strobe_sel,
+        inject_addr        
 	);
 
 	input					CLK;
@@ -125,6 +128,10 @@ module rbcp_write(
     output [1:0]        dac_chip0_start_clk133;
     output [1:0]        dac_chip1_start_clk133;    
 	
+    output               inject_start;
+    output [2:0]         inject_strobe_sel;
+    output [39:0]        inject_addr;	
+	
 	reg  [3:0] 	reg_trigger_mode;
 	reg  			reg_drs_mode;
 	reg  [11:0]	reg_thre_value;
@@ -175,6 +182,10 @@ module rbcp_write(
     reg [1:0]   reg_dac_chip0_start_clk133;
     reg [1:0]   reg_dac_chip1_start_clk133;        
 
+    reg               reg_inject_start;
+    reg [2:0]         reg_inject_strobe_sel;
+    reg [39:0]        reg_inject_addr;	
+
 	always@(posedge CLK or posedge RST)begin
 		if(RST == 1'b1)begin
 			reg_RBCP_WD <= 8'h0;
@@ -223,11 +234,49 @@ module rbcp_write(
             reg_dac_chip0_ch1[7:0] <= 8'h0;
             reg_dac_chip1_ch0[7:0] <= 8'h0;
             reg_dac_chip1_ch1[7:0] <= 8'h0;
+            reg_inject_start <= 1'b0;
+            reg_inject_strobe_sel <= 3'h0;
+            reg_inject_addr <= 40'h0;
 		end
 		else if(write_on == 1'b1)begin
 			
 			//modify register
 			case (reg_RBCP_ADDR)
+				32'h10 : 
+					begin
+						reg_inject_start <= reg_RBCP_WD[0];
+						reg_RBCP_ACK_write1 <= 1'b1;
+					end			
+				32'h11 : 
+					begin
+						reg_inject_strobe_sel[2:0] <= reg_RBCP_WD[2:0];
+						reg_RBCP_ACK_write1 <= 1'b1;
+					end				
+				32'h12 : 
+					begin
+						reg_inject_addr[39:32] <= reg_RBCP_WD[7:0];
+						reg_RBCP_ACK_write1 <= 1'b1;
+					end		
+				32'h13 : 
+					begin
+						reg_inject_addr[31:24] <= reg_RBCP_WD[7:0];
+						reg_RBCP_ACK_write1 <= 1'b1;
+					end		
+				32'h14 : 
+					begin
+						reg_inject_addr[23:16] <= reg_RBCP_WD[7:0];
+						reg_RBCP_ACK_write1 <= 1'b1;
+					end		
+				32'h15 : 
+					begin
+						reg_inject_addr[15:8] <= reg_RBCP_WD[7:0];
+						reg_RBCP_ACK_write1 <= 1'b1;
+					end		
+				32'h16 : 
+					begin
+						reg_inject_addr[7:0] <= reg_RBCP_WD[7:0];
+						reg_RBCP_ACK_write1 <= 1'b1;
+					end																										
 				32'h11d : //trigger mode & DRS4 mode
 					begin
 						//trigger mode
@@ -712,6 +761,11 @@ module rbcp_write(
     assign dac_chip1_ch1[7:0] = reg_dac_chip1_ch1[7:0];
     assign dac_chip0_start_clk133[1:0] = reg_dac_chip0_start_clk133[1:0];
     assign dac_chip1_start_clk133[1:0] = reg_dac_chip1_start_clk133[1:0];
+
+    assign inject_start = reg_inject_start;
+    assign inject_strobe_sel = reg_inject_strobe_sel;
+    assign inject_addr = reg_inject_addr;
+
 
 
 endmodule

@@ -41,8 +41,10 @@ module Monitor(
     vrefn,
     status_observation,
     status_correction,
-    status_uncorrectable
-    
+    status_uncorrectable,
+    inject_start,
+    inject_strobe_sel,
+    inject_addr
 );
     
     input               clk66m;
@@ -66,6 +68,10 @@ module Monitor(
     output              status_observation;
     output              status_correction;
     output              status_uncorrectable;
+    input               inject_start;
+    input [2:0]         inject_strobe_sel;
+    input [39:0]        inject_addr;
+    
 
     //reset 133m --> 66m
     reg reg_rst1;
@@ -138,6 +144,7 @@ module Monitor(
             wire [39:0] vio_1_address3;
             wire        inject_start;
 
+/*
             vio_0 vio_0 (
                 .clk(clk66m),
                 .probe_out0(vio_1_strobe1),
@@ -148,6 +155,7 @@ module Monitor(
                 .probe_out5(vio_1_address3[39:0]),
                 .probe_out6(inject_start)
             );
+*/
 
             wire    inject_start2;
             reg     inject_start_old;
@@ -170,15 +178,15 @@ module Monitor(
             end
 
             assign inject_strobe =  (|inject_shift_register[4:1]) ? 1'b0 :
-                                    (|inject_shift_register[6:5]) ? vio_1_strobe1 :
+                                    (|inject_shift_register[6:5]) ? inject_strobe_sel[0] :
                                     (|inject_shift_register[10:7]) ? 1'b0 :
-                                    (|inject_shift_register[12:11]) ? vio_1_strobe2 :
+                                    (|inject_shift_register[12:11]) ? inject_strobe_sel[1] :
                                     (|inject_shift_register[16:13]) ? 1'b0 :
-                                    (|inject_shift_register[18:17]) ? vio_1_strobe3 : 1'b0;
+                                    (|inject_shift_register[18:17]) ? inject_strobe_sel[2] : 1'b0;
 
-            assign inject_address[39:0] =   (|inject_shift_register[6:1]) ? vio_1_address1[39:0] :
-                                            (|inject_shift_register[12:7]) ? vio_1_address2[39:0] :
-                                            (|inject_shift_register[18:13]) ? vio_1_address3[39:0] : 40'h0;    
+            assign inject_address[39:0] =   (|inject_shift_register[6:1]) ? inject_addr[39:0] :
+                                            (|inject_shift_register[12:7]) ? inject_addr[39:0] :
+                                            (|inject_shift_register[18:13]) ? inject_addr[39:0] : 40'h0;    
     
     
     //SEM IP

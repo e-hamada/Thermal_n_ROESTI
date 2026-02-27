@@ -206,6 +206,9 @@ module TOP #(
 	
 	reg [15:0]    err_flag_count;
 	
+    wire               inject_start;
+    wire [2:0]         inject_strobe_sel;
+    wire [39:0]        inject_addr;	
 	
 	rbcp_control rbcp_control(
         .CLK                (clk133m                  ),  // in  : System Clock >129MHz
@@ -260,7 +263,10 @@ module TOP #(
         .TEST_IN_SIGNAL_LENGTH(TEST_IN_SIGNAL_LENGTH[7:0]),
         .DecisionTriggerCatch(DecisionTriggerCatch),
         .DecisionTriggerGate_stop2(DecisionTriggerGate_stop2),
-        .err_flag_count(err_flag_count[15:0])                 
+        .err_flag_count(err_flag_count[15:0]),
+        .inject_start(inject_start),
+        .inject_strobe_sel(inject_strobe_sel),
+        .inject_addr(inject_addr)                 
     );
     
 
@@ -296,7 +302,10 @@ module TOP #(
         .vrefn(vrefn),
         .status_observation(status_observation),
         .status_correction(status_correction),
-        .status_uncorrectable(status_uncorrectable)
+        .status_uncorrectable(status_uncorrectable),
+        .inject_start(inject_start),
+        .inject_strobe_sel(inject_strobe_sel),
+        .inject_addr(inject_addr)               
     );
 
 
@@ -334,7 +343,8 @@ module TOP #(
 
     error_sig_tx_V2 
         #(.ARRAY_SIZE(ARRAY_SIZE),
-        .ERRSIG_ID_num(ERRSIG_ID_num)
+        .ERRSIG_ID_num(ERRSIG_ID_num),
+        .PULSE_WIDTH(266666)    //7.5ns x 266666 = 2ms
     )    
     error_sig_tx(
         .i_clk(clk133m),      // System clock

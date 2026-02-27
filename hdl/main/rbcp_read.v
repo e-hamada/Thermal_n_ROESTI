@@ -78,7 +78,10 @@ module rbcp_read(
         dac_chip1_ch1,
         dac_chip0_start_clk133,
         dac_chip1_start_clk133,
-        err_flag_count        
+        err_flag_count,
+    inject_start,
+    inject_strobe_sel,
+    inject_addr                
     );
 
 	input					CLK;
@@ -149,6 +152,11 @@ module rbcp_read(
 
     input [15:0] err_flag_count;
 
+    input               inject_start;
+    input [2:0]         inject_strobe_sel;
+    input [39:0]        inject_addr;
+    
+
 	reg [7:0] 	reg_read_value;
 	reg 			read_on;
 	reg  [31:0]	reg_RBCP_ADDR;
@@ -172,6 +180,44 @@ module rbcp_read(
 		if(read_on == 1'b1)begin			
 			//read register
 			case (reg_RBCP_ADDR)
+				32'h10 : 
+					begin
+						reg_read_value <= {7'h0, inject_start};
+						reg_RBCP_ACK_read1 <= 1'b1;
+					end			
+				32'h11 : 
+					begin
+						reg_read_value <= {5'h0, inject_strobe_sel[2:0]};
+						reg_RBCP_ACK_read1 <= 1'b1;
+					end	
+						
+				32'h12 : 
+					begin
+						reg_read_value <= inject_addr[39:32];
+						reg_RBCP_ACK_read1 <= 1'b1;
+					end			
+				32'h13 : 
+					begin
+						reg_read_value <= inject_addr[31:24];
+						reg_RBCP_ACK_read1 <= 1'b1;
+					end	
+				32'h14 : 
+					begin
+						reg_read_value <= inject_addr[23:16];
+						reg_RBCP_ACK_read1 <= 1'b1;
+					end	
+				32'h15 : 
+					begin
+						reg_read_value <= inject_addr[15:8];
+						reg_RBCP_ACK_read1 <= 1'b1;
+					end	
+				32'h16 : 
+					begin
+						reg_read_value <= inject_addr[7:0];
+						reg_RBCP_ACK_read1 <= 1'b1;
+					end																					
+					
+													
 				32'h11d : //trigger mode & drs mode
 					begin
 						reg_read_value <= {drs_mode, TRIGGER_MODE};
